@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+import sys
+import os
+from decimal import Decimal
+
+
+def find_closest_number(target, haystack):
+    diff = float('+inf')
+    needle = None
+    for idx, number in haystack:
+        my_diff = abs(number - target)
+        if needle is None:
+            needle = (idx, number)
+            diff = my_diff
+            continue
+        if my_diff < diff:
+            needle = (idx, number)
+            diff = my_diff
+    return needle
+
+
+# example: ./extract_summary.py summary_distances.dat
+def main():
+    filename = sys.argv[1]
+    f = open('./summary_distances.dat')
+
+    results = []
+    numbers = []
+    first_number = 0
+
+    for idx, line in enumerate(f):
+        _, number = line.split(' ')
+        number = Decimal(number)
+        if idx == 0:
+            first_number = number
+        numbers.append((idx, number))
+
+    results.append(numbers[0])
+
+    # find closest numbers here (-0.15 ... -(19*0.15))
+    for multiple in range(1, 20):
+        num = first_number - (Decimal('0.15') * multiple)
+        idx, number = find_closest_number(num, numbers)
+        results.append((idx, number))
+
+    # i <- 1..20
+    for i, (idx, num) in enumerate(results, 1):
+        print(idx, num)
+        conf_name = 'conf%d.gro' % idx
+        os.rename(conf_name, '%i/conf.gro' % i)
+        print(conf_name, '-->', '%i/conf.gro' % i)
+
+
+if __name__ == '__main__':
+    main()
