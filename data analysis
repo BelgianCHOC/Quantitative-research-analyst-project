@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+
+import sys
+
+# usage:  ./analysis.py <input>    <output>
+#example: ./analysis.py energy.xvg data.txt
+
+input_file  = sys.argv[1]
+output_file = sys.argv[2]
+
+def func(series):
+    x = 18 * (float(series[3]) - (float(series[1]) + float(series[2])) / 2)
+    return x
+
+total = 0
+count = 0
+
+in_fp  = open(input_file)
+out_fp = open(output_file, "w")
+for line in in_fp:
+    if line[0].isdigit() or line.startswith(' '):
+        series = line.split()
+        value = func(series)
+        total = total + value
+        count = count + 1
+
+result = (total / count) / 2
+out_fp.write(str(result))
+out_fp.close()
